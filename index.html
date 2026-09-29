@@ -219,6 +219,33 @@ table.t.wk th .dot{display:none}
 .drop.show{display:flex}
 footer{max-width:1240px;margin:0 auto;padding:0 20px 24px;font-size:11.5px;color:var(--muted)}
 
+.btn.guide{display:inline-flex;align-items:center;gap:7px}
+.btn.guide svg{width:17px;height:17px}
+.gmodal{position:fixed;inset:0;z-index:60;background:rgba(10,20,34,.55);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px));opacity:0;transition:opacity .18s}
+.gmodal[hidden]{display:none}
+.gmodal.show{opacity:1}
+.gbox{background:var(--surface);color:var(--ink);border-radius:18px;width:min(720px,100%);max-height:100%;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.3);transform:translateY(8px);transition:transform .18s;overflow:hidden}
+.gmodal.show .gbox{transform:none}
+.ghead{background:#111a2e;color:#fff;padding:18px 22px;display:flex;align-items:center;gap:14px;border-bottom:4px solid;border-image:linear-gradient(90deg,#0e8a8a,#5fe0d6) 1}
+.ghead h2{margin:0;font-size:19px;font-weight:800}
+.ghead p{margin:2px 0 0;color:#9fb3c8;font-size:13px}
+.ghead .gx{margin-left:auto;border:0;background:rgba(255,255,255,.1);color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1;flex:none}
+.ghead .gx:hover{background:rgba(255,255,255,.2)}
+.gbody{overflow-y:auto;padding:18px 22px 8px}
+.gstep{display:grid;grid-template-columns:34px 1fr;gap:4px 14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.gstep:last-child{border-bottom:0}
+.gnum{width:34px;height:34px;border-radius:50%;background:var(--teal-soft);color:var(--teal-ink);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;grid-row:span 2}
+.gstep h3{margin:4px 0 0;font-size:15px;font-weight:700}
+.gstep p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
+.gstep b{color:var(--ink)}
+.kbd{display:inline-block;border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:0 8px;font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap}
+.kbd.red{background:#fdecec;border-color:#f3b4b4;color:#c62828}
+.gtip{margin:6px 0 14px;background:var(--surface-2);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--muted);display:flex;gap:10px}
+.gfoot{display:flex;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid var(--line)}
+.gfoot button{border:0;background:var(--teal);color:#fff;font-weight:700;font-size:14px;border-radius:999px;padding:10px 22px;cursor:pointer}
+.gfoot button:hover{filter:brightness(1.08)}
+@media (max-width:640px){.btn.guide span{display:none}.gbody{padding:12px 16px 4px}.ghead{padding:14px 16px}}
+@media print{.gmodal{display:none!important}}
 @media (max-width:1100px){
   .kpis{grid-template-columns:repeat(3,1fr)}
 }
@@ -263,9 +290,10 @@ table.t.cm tr.house td{color:var(--muted)}
         <div class="period" id="period"></div>
       </div>
     </div>
-    <div class="actions when-loaded">
-      <button class="btn" type="button" onclick="window.print()">Imprimir / PDF</button>
-      <button class="btn swap" type="button" id="reset">↻ Cambiar archivo</button>
+    <div class="actions">
+      <button class="btn guide" type="button" id="guideBtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.5-2.7 4"/><path d="M12 17.4h.01"/></svg>Guía rápida</button>
+      <button class="btn when-loaded" type="button" onclick="window.print()">Imprimir / PDF</button>
+      <button class="btn swap when-loaded" type="button" id="reset">↻ Cambiar archivo</button>
       <input type="file" id="file" accept=".xls,.html,.htm">
     </div>
   </div>
@@ -279,6 +307,7 @@ table.t.cm tr.house td{color:var(--muted)}
     <h2>Arrastra aquí tu reporte de ventas</h2>
     <p>El reporte de ventas por asesora que exporta SAYA (.xls), tal como se descarga, sin necesidad de abrirlo primero. O <a href="#" id="pick">haz clic para seleccionarlo</a>.</p>
     <p class="fine">El archivo se procesa en tu equipo. No se sube a ningún servidor.</p>
+    <p class="fine"><a href="#" id="guideLink">¿Primera vez? Mira la guía rápida</a></p>
   </section>
 
   <div class="dash">
@@ -352,6 +381,32 @@ table.t.cm tr.house td{color:var(--muted)}
   </div>
 </main>
 <footer id="foot" style="text-align:center"></footer>
+<div class="gmodal" id="guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
+  <div class="gbox">
+    <div class="ghead">
+      <div><h2 id="gTitle">Guía rápida</h2><p>Cómo usar el Panel de Ventas por Asesora</p></div>
+      <button class="gx" type="button" id="gClose" aria-label="Cerrar guía">✕</button>
+    </div>
+    <div class="gbody">
+      <div class="gstep"><span class="gnum">1</span><h3>Carga el reporte de SAYA</h3>
+        <p>Exporta desde SAYA el reporte de ventas por asesora y arrástralo a la pantalla de inicio, o haz clic para seleccionarlo. No hace falta abrirlo en Excel antes. Puede traer uno o varios meses.</p></div>
+      <div class="gstep"><span class="gnum">2</span><h3>Revisa los indicadores</h3>
+        <p>Arriba ves la venta total, la factura electrónica, la factura POS, las comisiones y el promedio diario. Toca <span class="kbd">Venta total</span>, <span class="kbd">Factura electrónica</span> o <span class="kbd">Factura POS</span> para cambiar lo que muestran el ranking y las gráficas.</p></div>
+      <div class="gstep"><span class="gnum">3</span><h3>Filtra la información</h3>
+        <p><span class="kbd">Mes</span> aparece cuando el reporte trae varios meses. <span class="kbd">Periodo</span> sirve para un rango de fechas puntual, como una quincena. <span class="kbd">Asesora</span> permite buscar y marcar una o varias. Para quitar todo, usa <span class="kbd red">✕ Limpiar filtros</span>.</p></div>
+      <div class="gstep"><span class="gnum">4</span><h3>Compara a las asesoras</h3>
+        <p>El <b>Ranking</b> ordena a las asesoras por venta y muestra su participación, días con venta y comisión. Toca una asesora para filtrar todo el panel por ella.</p></div>
+      <div class="gstep"><span class="gnum">5</span><h3>Consulta las comisiones</h3>
+        <p>La sección <b>Comisiones acumuladas</b> calcula la comisión de cada asesora sobre la venta total. Si el porcentaje cambia, edítalo en la casilla <span class="kbd">Comisión 3 %</span> y todo se recalcula. La cuenta de la empresa no genera comisión.</p></div>
+      <div class="gstep"><span class="gnum">6</span><h3>Analiza el comportamiento</h3>
+        <p><b>Venta diaria</b> muestra el aporte de cada asesora por día; pasa el mouse sobre una barra para ver el detalle. El <b>Mapa de actividad</b> muestra quién vendió cada día, el <b>Resumen semanal</b> resalta a la mejor de cada semana y el <b>Detalle por día</b> se ordena tocando el título de cada columna.</p></div>
+      <div class="gstep"><span class="gnum">7</span><h3>Imprime o cambia de reporte</h3>
+        <p><span class="kbd">Imprimir / PDF</span> genera una copia del panel con los filtros aplicados. <span class="kbd">↻ Cambiar archivo</span> borra los datos y vuelve a la pantalla de inicio para cargar otro reporte.</p></div>
+      <div class="gtip"><span>🔒</span><span>El reporte se procesa solo en tu equipo y no se sube a ningún servidor. Al cerrar o recargar la página, los datos se borran.</span></div>
+    </div>
+    <div class="gfoot"><button type="button" id="gOk">Entendido</button></div>
+  </div>
+</div>
 <div class="drop" id="drop">Suelta aquí el reporte exportado de SAYA</div>
 
 <script>
@@ -691,6 +746,21 @@ function resetPanel(){
 $('reset').onclick=resetPanel;
 $('start').onclick=e=>{e.preventDefault();$('file').click();};
 $('start').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('file').click();}};
+
+/* ---------- guía rápida ---------- */
+let gLast=null;
+function openGuide(){gLast=document.activeElement;const g=$('guide');g.hidden=false;requestAnimationFrame(()=>g.classList.add('show'));$('gOk').focus();document.body.style.overflow='hidden';}
+function closeGuide(){const g=$('guide');g.classList.remove('show');document.body.style.overflow='';setTimeout(()=>{g.hidden=true;},180);try{localStorage.setItem('vxa_guide_seen','1');}catch(e){}if(gLast&&gLast.focus)gLast.focus();}
+$('guideBtn').onclick=openGuide;
+$('guideLink').onclick=e=>{e.preventDefault();e.stopPropagation();openGuide();};
+$('gClose').onclick=closeGuide; $('gOk').onclick=closeGuide;
+$('guide').addEventListener('click',e=>{if(e.target===$('guide'))closeGuide();});
+document.addEventListener('keydown',e=>{
+  if($('guide').hidden)return;
+  if(e.key==='Escape'){e.stopImmediatePropagation();closeGuide();}
+  if(e.key==='Tab'){const f=[...$('guide').querySelectorAll('button')];const i=f.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus();}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus();}}
+},true);
+try{if(!localStorage.getItem('vxa_guide_seen'))setTimeout(openGuide,400);}catch(e){}
 </script>
 </body>
 </html>
