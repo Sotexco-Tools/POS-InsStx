@@ -275,8 +275,29 @@ table.t.cm tr.house td{color:var(--muted)}
   header.top{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .actions,.hint .chips,.drop{display:none!important}
   body{background:#fff}
-  .card,.kpis{break-inside:avoid}
+  @page{size:A4;margin:10mm}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  html,body{height:auto!important}
+  main{padding:12px 0 0}
+  .hint,.card:has(#detail) .desc{display:none!important}
+  .kpis,.filters,.row{break-inside:avoid}
+  .card{break-inside:auto;box-shadow:none}
+  .card h2,.card .desc,.card-head{break-after:avoid}
+  .grid,.two{grid-template-columns:1fr!important;display:grid}
+  .scroll,.detail-scroll{max-height:none!important;overflow:visible!important}
+  table.t thead{display:table-header-group}
+  table.t tfoot{display:table-row-group}
+  table.t tr{break-inside:avoid}
+  table.t.compact{table-layout:auto}
+  table.t.compact td:nth-child(2){overflow:visible;white-space:nowrap}
+  table.heat{border-spacing:1px;width:100%;min-width:0;table-layout:fixed}
+  table.heat td{width:auto;min-width:0;height:18px;font-size:6.5px;padding:0;border-radius:3px}
+  table.heat th{font-size:7px;padding:1px 0}
+  table.heat th.nm{font-size:9px;width:92px;padding-right:4px;position:static}
+  table.heat td.tot{font-size:8px;width:76px;padding-left:4px}
+  .tip{display:none!important}
 }
+.detail-scroll{max-height:460px;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -375,7 +396,7 @@ table.t.cm tr.house td{color:var(--muted)}
     <section class="card">
       <h2>Detalle por día</h2>
       <p class="desc">Valores en pesos. Ordena por cualquier columna.</p>
-      <div class="scroll" style="max-height:460px;overflow-y:auto" id="detail"></div>
+      <div class="scroll detail-scroll" id="detail"></div>
     </section>
   </div>
   </div>
