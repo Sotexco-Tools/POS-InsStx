@@ -245,7 +245,7 @@ footer{max-width:1240px;margin:0 auto;padding:0 20px 24px;font-size:11.5px;color
 .gfoot button{border:0;background:var(--teal);color:#fff;font-weight:700;font-size:14px;border-radius:999px;padding:10px 22px;cursor:pointer}
 .gfoot button:hover{filter:brightness(1.08)}
 @media (max-width:640px){.btn.guide span{display:none}.gbody{padding:12px 16px 4px}.ghead{padding:14px 16px}}
-@media print{.gmodal{display:none!important}}
+@media print{.gmodal{display:none!important}.card:has(#rank) .desc,.filters .clear{display:none!important}}
 @media (max-width:1100px){
   .kpis{grid-template-columns:repeat(3,1fr)}
 }
@@ -618,20 +618,27 @@ function renderRank(){
     const days=rs.filter(r=>r.fe+r.pos>0).length;
     return {n,fe,pos,tot:fe+pos,v:S.metric==='fe'?fe:S.metric==='pos'?pos:fe+pos,days};
   }).sort((a,b)=>b.v-a.v);
-  const grand=stats.reduce((s,x)=>s+x.v,0)||1, max=Math.max(...stats.map(s=>s.v),1);
-  $('rank').innerHTML=stats.map((s,i)=>{
+  const filt=S.sel.size>0;
+  const shown=filt?stats.filter(x=>S.sel.has(x.n)):stats;
+  const grand=shown.reduce((s,x)=>s+x.v,0)||1, max=Math.max(...shown.map(s=>s.v),1);
+  const card=$('rank').closest('.card');
+  card.querySelector('h2').textContent=filt?(S.sel.size===1?'Asesora seleccionada':'Asesoras seleccionadas'):'Ranking de asesoras';
+  card.querySelector('.desc').textContent=filt?'Solo se muestran las asesoras del filtro. Usa "Limpiar filtros" para volver a ver a todo el equipo.':'Toca una asesora para filtrar todo el panel. Puedes seleccionar varias.';
+  $('rank').innerHTML=shown.map((s,i)=>{
     const w=s.v/max*100;
     const segs = S.metric==='total'
       ? `<span style="width:${s.tot?w*s.fe/s.tot:0}%;background:var(--fe)"></span><span style="width:${s.tot?w*s.pos/s.tot:0}%;background:var(--pos)"></span>`
       : `<span style="width:${w}%;background:var(--${S.metric})"></span>`;
-    const cls=S.sel.size?(S.sel.has(s.n)?'sel':'dim'):'';
+    const cls='';
+    const share=filt?(S.sel.size>1?`${(s.v/grand*100).toFixed(1)}% de la selección · `:''):`${(s.v/grand*100).toFixed(1)}% del equipo · `;
     return `<button class="row ${cls}" data-n="${esc(s.n)}" title="${esc(title(s.n))}">
-      <span class="pos">${i+1}</span><span class="nm"><span class="dot" style="background:${S.colors[s.n]}"></span>${esc(shortName(s.n))}</span><span class="amt">${COP.format(s.v)}</span>
+      <span class="pos">${filt&&S.sel.size===1?'':i+1}</span><span class="nm"><span class="dot" style="background:${S.colors[s.n]}"></span>${esc(shortName(s.n))}</span><span class="amt">${COP.format(s.v)}</span>
       <div class="bar">${segs}</div>
-      <div class="meta"><span>${(s.v/grand*100).toFixed(1)}% del equipo · ${s.days} ${s.days===1?'día':'días'} con venta</span><span>Prom./día ${COP.format(s.days?s.v/s.days:0)}</span><span class="cm">${isHouse(s.n)?'Sin comisión (cuenta empresa)':`Comisión ${COP.format(comm(s.tot))}`}</span></div>
+      <div class="meta"><span>${share}${s.days} ${s.days===1?'día':'días'} con venta</span><span>Prom./día ${COP.format(s.days?s.v/s.days:0)}</span><span class="cm">${isHouse(s.n)?'Sin comisión (cuenta empresa)':`Comisión ${COP.format(comm(s.tot))}`}</span></div>
     </button>`;
   }).join('');
-  $('rank').querySelectorAll('.row').forEach(b=>b.onclick=()=>{const n=b.dataset.n;S.sel.has(n)?S.sel.delete(n):S.sel.add(n);render();});
+  $('rank').querySelectorAll('.row').forEach(b=>b.onclick=()=>{if(filt)return;const n=b.dataset.n;S.sel.add(n);render();});
+  $('rank').querySelectorAll('.row').forEach(b=>b.style.cursor=filt?'default':'pointer');
 }
 
 function renderDaily(days){
